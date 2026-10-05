@@ -2,3 +2,4 @@
 
 ## Team Members
 Dylan Kothari
+Lucas Huang
