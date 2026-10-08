@@ -1,5 +1,8 @@
 from post import Post
 
+class SameTitleError(Exception):
+    pass
+
 class NoTitledPostError(Exception):
     pass
 
@@ -19,6 +22,9 @@ class Account:
             self.following = following
 
     def create_post(self, title, text):
+        for post in self.posts:
+            if title == post.title:
+                raise SameTitleError(f"Already a post titled '{title}'")
         post = Post(title, text)
         self.posts.append(post)
 
