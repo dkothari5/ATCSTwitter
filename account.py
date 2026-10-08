@@ -12,4 +12,7 @@ class Account:
             self.following = []
         else:
             self.following = following
-        
+
+    def create_post(self, text):
+        post = Post(text)
+        self.posts.append(post)
