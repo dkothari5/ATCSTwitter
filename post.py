@@ -1,3 +1,4 @@
 class Post:
-    def __init__(self):
-        pass
+    def __init__(self, title, text):
+        self.title = title
+        self.text = text
