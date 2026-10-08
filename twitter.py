@@ -3,6 +3,9 @@ from account import Account
 class SameUsernameError(Exception):
     pass
 
+class LoginError(Exception):
+    pass
+
 class Twitter:
     def __init__(self, accounts = None):
         if accounts is None:
@@ -13,7 +16,7 @@ class Twitter:
     def create_account(self, username, password):
         for account in self.accounts:
             if (username == account.username):
-                raise SameUsernameError(f"Username'{username}' is already taken")
+                raise SameUsernameError(f"Username '{username}' is already taken")
         account = Account(username, password)
         self.accounts.append(account)
 
@@ -22,8 +25,7 @@ class Twitter:
             if account.username == username and account.password == password:
                 return account
 
-        print("Invalid username and/or password")
-        return None
+        raise LoginError(f"Invalid username and/or password")
 
     def run(self):
         while True:
@@ -39,7 +41,10 @@ class Twitter:
                     username = input("Enter username: ")
                     password = input("Enter password: ")
 
-                    account = self.login(username, password)
+                    try:
+                        account = self.login(username, password)
+                    except LoginError as e:
+                        print(e)
 
                     if account is not None:
                         print("Login successful!")
@@ -66,8 +71,8 @@ class Twitter:
                     self.create_account(username, password)
                     print("Account created successfully!")
 
-                except SameUsernameError as error:
-                    print(error)
+                except SameUsernameError as e:
+                    print(e)
 
             elif choice == "3":
                 print("Goodbye!")
