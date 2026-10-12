@@ -38,7 +38,7 @@ class Account:
                 raise SameTitleError(f"Already a post titled '{title}'")
 
         # Creates the post and adds the post to all of the account's posts
-        post = Post(title, text)
+        post = Post(title, text, self.username)
         self.posts.append(post)
 
     def delete_post(self, title):
@@ -60,4 +60,7 @@ class Account:
             # Adds account to the list of accounts you are following
             self.following.append(account)
 
+    def to_dict(self):
+        # For following returns only the name of the followed account so there isn't infinite recursion
+        return {"username": self.username, "password": self.password, "posts": [post.to_dict() for post in self.posts], "following": [account.username for account in self.following]}
             

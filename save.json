@@ -1,0 +1,1 @@
+{"accounts": [{"username": "l", "password": "h", "posts": [], "following": ["r"]}, {"username": "r", "password": "h", "posts": [{"title": "hi", "text": "hello", "poster": "r"}, {"title": "why", "text": "why am i posting", "poster": "r"}], "following": []}]}

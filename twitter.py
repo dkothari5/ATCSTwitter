@@ -1,4 +1,6 @@
 from account import Account, AlreadyFollowingError, SameTitleError, SelfFollowError
+from post import Post
+import json
 
 # Custom exceptions
 class SameUsernameError(Exception):
@@ -159,7 +161,54 @@ class Twitter:
             else:
                 print("Invalid option. Please try again.")
 
+    def to_dict(self):
+        return {"accounts": [account.to_dict() for account in self.accounts]}
+
+    def save_to_file(self, file_path = "save.json"):
+        with open(file_path, "w") as file:
+            json.dump(self.to_dict(), file)
+        print("Saved!")
+
+    def load_from_file(self, file_path = "save.json"):
+        try:
+            with open(file_path) as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            return
+
+        # Create the accounts list and a dictionary to store the username and the account it leads to
+        self.accounts = []
+        username_to_account = {}
+
+        # Go through every account in the file
+        for account in data["accounts"]:
+
+            # Get the posts for that account
+            posts = [Post(post["title"], post["text"], post["poster"]) for post in account["posts"]]
+
+            # Append the account without the followed section
+            account = Account(account["username"], account["password"], posts)
+            self.accounts.append(account)
+
+            # Add to the dictionary the username as the key and the created account as the value
+            username_to_account[account.username] = account
+
+        # Go through every account in the file
+        for account_data in data["accounts"]:
+
+            # Get the account without the followed accounts from the dictionary
+            account = username_to_account[account_data["username"]]
+
+            # Go through the account in the file and the usernames of the account they are following
+            for name in account_data["following"]:
+
+                # Find the actual account using the dictionary and add it to the followed accounts
+                account.following.append(username_to_account[name])
+            
+
 
 if __name__ == "__main__":
     twitter = Twitter()
+    twitter.load_from_file()
     twitter.run()
+    twitter.save_to_file()
