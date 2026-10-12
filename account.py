@@ -10,6 +10,9 @@ class NoTitledPostError(Exception):
 class AlreadyFollowingError(Exception):
     pass
 
+class SelfFollowError(Exception):
+    pass
+
 class Account:
 
     # Constructor
@@ -49,9 +52,11 @@ class Account:
         raise NoTitledPostError(f"No post titled '{title}'")
     
     def follow(self, account):
-            # Checks if account isn't already in the list of accounts you are following
+            # Checks if account isn't already in the list of accounts you are following or account isn't yourself
             if account in self.following:
                 raise AlreadyFollowingError("You already follow this account")
+            elif account.username == self.username:
+                raise SelfFollowError("You can't follow yourself")
             # Adds account to the list of accounts you are following
             self.following.append(account)
 
