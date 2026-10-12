@@ -1,5 +1,4 @@
-from account import Account
-
+from account import Account, AlreadyFollowingError, SameTitleError
 # Custom exceptions
 class SameUsernameError(Exception):
     pass
@@ -25,6 +24,7 @@ class Twitter:
     
     def create_account(self, username, password):
         # If unique username create a new account and add it to the accounts
+        self.check_username(username)
         account = Account(username, password)
         self.accounts.append(account)
 
@@ -48,9 +48,19 @@ class Twitter:
                 for post in account.posts:
                     print(post)
                 
+    def follow_account(self, user, username):
+        # Allows user to follow an account by matching the username of the account the user wishes to follow with the actual username of the account
+        for account in self.accounts:
+            if account.username == username:
+                user.follow(account)
+                print("Successfully followed " + username)
+                return
+        # If there is no actual account with the username of the account the user wishes to follow then return a failure message
+        print("Account not found")
 
     def run(self):
         while True:
+            # Pre-login Options
             print("\nWelcome to Twitter!")
             print("1. Login")
             print("2. Create Account")
@@ -66,31 +76,65 @@ class Twitter:
                     try:
                         account = self.login(username, password)
                         print("\nSuccessful Login!")
-                        self.show_feed(account)
+                        while True:
+                            # In App Options
+                            print("\n1. View Feed")
+                            print("2. Follow Account")
+                            print("3. Create Post")
+                            print("4. Logout")
+                            
+                            choice = input("Choose an option: ")
+                            # Shows Feed
+                            if choice == "1":
+                                self.show_feed(account)
+                            # Follow Account
+                            elif choice == "2":
+                                username_to_follow = input("Enter username to follow: ")
+                                try:
+                                    self.follow_account(account, username_to_follow)
+                                except AlreadyFollowingError as e:
+                                    print(e)
+                            # Create Post
+                            elif choice == "3":
+                                title = input("Enter post title: ")
+                                text = input("Enter post text: ")
+
+                                try:
+                                    account.create_post(title, text)
+                                    print("Post created successfully!")
+                                except SameTitleError as e:
+                                    print(e) 
+                            # Logout    
+                            elif choice == "4":
+                                print("Logged out!")
+                                break
+                            # If user does not enter 1, 2, 3, or 4, they will be prompted to try again
+                            else:
+                                print("Invalid option. Please try again.")
+                        
                         break
+
                     except LoginError as e:
                         print(e)
 
                     retry = input("Would you like to try again? (yes/no): ")
                     if retry.lower() != "yes":
                         break
-
+            # Create Account
             elif choice == "2":
-
                 username = input("Choose a username: ")
+                password = input("Choose a password: ")
+
                 try:
-                    self.check_username(username)
+                    self.create_account(username, password)
+                    print("Account created successfully!")
                 except SameUsernameError as e:
                     print(e)
-                    continue
-                password = input("Choose a password: ")
-                self.create_account(username, password)
-                print("Account created successfully!")
-
+            # Quit
             elif choice == "3":
                 print("Goodbye!")
                 break
-
+            # If user does not enter 1, 2, or 3 they will be prompted to try again
             else:
                 print("Invalid option. Please try again.")
 

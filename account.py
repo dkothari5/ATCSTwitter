@@ -7,6 +7,9 @@ class SameTitleError(Exception):
 class NoTitledPostError(Exception):
     pass
 
+class AlreadyFollowingError(Exception):
+    pass
+
 class Account:
 
     # Constructor
@@ -41,8 +44,15 @@ class Account:
             if title == post.title:
                 self.posts.remove(post)
                 return
-
+        
         # If not that exact title will throw an error
         raise NoTitledPostError(f"No post titled '{title}'")
+    
+    def follow(self, account):
+            # Checks if account isn't already in the list of accounts you are following
+            if account in self.following:
+                raise AlreadyFollowingError("You already follow this account")
+            # Adds account to the list of accounts you are following
+            self.following.append(account)
 
             
