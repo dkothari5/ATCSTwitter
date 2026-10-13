@@ -62,6 +62,10 @@ class Twitter:
         print("Account not found")
     
     def search_hashtag(self, hashtag):
+        # If the user gives empty input or searches by hashtag without starting with a hashtag or searches with a single hashtag, input is rejected
+        if not hashtag or not hashtag.startswith("#") or len(hashtag) == 1:
+            print("Invalid hashtag")
+            return
         # Keeps track whether any matching posts were found
         found = False
         # Goes through all posts in all of the accounts
