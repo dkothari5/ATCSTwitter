@@ -154,7 +154,146 @@ def test_delete_missing_post():
     lucas = Account("lucas", "pw")
     with pytest.raises(NoTitledPostError):
         lucas.delete_post("nope")
+# Search by Hashtag Tests
 
+# HAPPY PATH TESTS
+
+def test_search_hashtag_one_post(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "I love #tennis")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "I love #tennis" in captured.out
+
+
+def test_search_hashtag_multiple_posts(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.create_account("alex", "5678")
+
+    twitter.accounts[0].create_post("Match 1", "Playing #tennis")
+    twitter.accounts[1].create_post("Match 2", "Watching #tennis")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "Playing #tennis" in captured.out
+    assert "Watching #tennis" in captured.out
+
+
+def test_search_hashtag_excludes_other_posts(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+
+    twitter.accounts[0].create_post("Tennis", "I love #tennis")
+    twitter.accounts[0].create_post("Soccer", "I love #soccer")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "I love #tennis" in captured.out
+    assert "I love #soccer" not in captured.out
+
+
+def test_search_hashtag_in_title(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("#tennis", "Great match today")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "Great match today" in captured.out
+
+
+# EDGE CASE TESTS
+
+def test_search_hashtag_no_posts(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "I love #tennis")
+
+    twitter.search_hashtag("#soccer")
+    captured = capsys.readouterr()
+
+    assert "There are no posts that contain that hashtag" in captured.out
+    assert "I love #tennis" not in captured.out
+
+
+def test_search_hashtag_capitalization(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "I love #TENNIS")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "I love #TENNIS" in captured.out
+
+
+def test_search_hashtag_punctuation(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "I love #tennis!")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "I love #tennis!" in captured.out
+
+
+def test_search_hashtag_duplicate(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "#tennis is great #tennis")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert captured.out.count("#tennis is great #tennis") == 1
+
+
+def test_search_hashtag_empty_accounts(capsys):
+    twitter = Twitter()
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "There are no posts that contain that hashtag" in captured.out
+
+
+def test_search_hashtag_partial_match(capsys):
+    twitter = Twitter()
+    twitter.create_account("dylan", "1234")
+    twitter.accounts[0].create_post("Tennis", "I love #tennisplayer")
+
+    twitter.search_hashtag("#tennis")
+    captured = capsys.readouterr()
+
+    assert "I love #tennisplayer" not in captured.out
+
+
+# INVALID INPUT TESTS
+
+def test_search_hashtag_empty_input(capsys):
+    twitter = Twitter()
+
+    twitter.search_hashtag("")
+    captured = capsys.readouterr()
+
+    assert "Invalid hashtag" in captured.out
+
+
+def test_search_hashtag_missing_symbol(capsys):
+    twitter = Twitter()
+
+    twitter.search_hashtag("tennis")
+    captured = capsys.readouterr()
+
+    assert "Invalid hashtag" in captured.out
 
 # Post checks
 def test_post_str():
