@@ -60,13 +60,32 @@ class Twitter:
                 return
         # If there is no actual account with the username of the account the user wishes to follow then return a failure message
         print("Account not found")
+    
+    def search_hashtag(self, hashtag):
+        # Keeps track whether any matching posts were found
+        found = False
+        # Goes through all posts in all of the accounts
+        for account in self.accounts:
+            for post in account.posts:
+                # Seperates title and text of post into indvidual words and saves each word as an element of a list of words
+                words = (post.title + " " + post.text).split()
+                # Goes through each individual word in the posts
+                for word in words:
+                    # Removes puncuation from beginning and end of word and checks if it is equal to the hashtag that the user searched for
+                    if word.strip(".,!?").lower() == hashtag.lower():
+                        print(post)
+                        found = True
+                        break
+        if not found:
+            print("There are no posts that contain that hashtag")
 
     def home_page(self, account):
         # In App Options
         print("\n1. View Feed")
         print("2. Follow Account")
         print("3. Create Post")
-        print("4. Logout")                    
+        print("4. Search by Hastag")
+        print("5. Logout")                    
         choice = input("Choose an option: ")
 
         # Shows Feed
@@ -96,8 +115,13 @@ class Twitter:
             except SameTitleError as e:
                 print(e) 
         
-        # Logout    
+        # Search by Hashtag
         elif choice == "4":
+            hashtag = input("Enter a hashtag to search: ")
+            self.search_hashtag(hashtag)
+        
+        # Logout    
+        elif choice == "5":
             print("Logged out!")
             return False
         
